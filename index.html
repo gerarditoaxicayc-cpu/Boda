@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuestra Boda | Danny Xicay &amp; Mishel Miculax</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --paper-bg: #ffffff;
+            --paper-edge: #f9f7f2;
+            --gold-main: #b4923e;
+            --gold-dark: #8e6f24;
+            --gold-light: #d6b96b;
+            --ink-dark: #34332e;
+            --ink-muted: #525048;
+            --envelope-bg: #faf8f3;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: radial-gradient(circle at center, #ffffff 0%, #f4f1ea 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 14px;
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            color: var(--ink-dark);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Partículas doradas flotantes */
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Pantalla de apertura tipo sobre con fondo blanco limpio */
+        .envelope-overlay {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at center, #ffffff 0%, #f3efe6 100%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            transition: opacity 0.9s ease, visibility 0.9s ease;
+        }
+
+        .envelope-overlay.opened {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .envelope-box {
+            width: 100%;
+            max-width: 380px;
+            background: linear-gradient(145deg, #ffffff, var(--envelope-bg));
+            border: 2px solid var(--gold-main);
+            border-radius: 6px;
+            padding: 36px 24px;
+            text-align: center;
+            box-shadow: 0 18px 45px rgba(142, 111, 36, 0.16), inset 0 0 25px rgba(180, 146, 62, 0.08);
+            position: relative;
+            animation: floatEnvelope 3.2s ease-in-out infinite;
+        }
+
+        .envelope-box::before {
+            content: '';
+            position: absolute;
+            inset: 8px;
+            border: 1px solid rgba(180, 146, 62, 0.55);
+            pointer-events: none;
+        }
+
+        @keyframes floatEnvelope {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        .wax-seal {
+            width: 78px;
+            height: 78px;
+            margin: 18px auto;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #d9b963, #9b7926 70%, #785b16 100%);
+            box-shadow: 0 6px 18px rgba(142, 111, 36, 0.35), inset 0 2px 4px rgba(255, 255, 255, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff9e6;
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 700;
+            font-size: 1.55rem;
+            letter-spacing: -1px;
+            cursor: pointer;
+            border: 2px solid #e7cd84;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .wax-seal:hover {
+            transform: scale(1.07);
+            box-shadow: 0 8px 25px rgba(180, 146, 62, 0.45);
+        }
+
+        .open-btn {
+            margin-top: 10px;
+            background: transparent;
+            border: 1px solid var(--gold-main);
+            color: var(--gold-dark);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 10px 26px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .open-btn:hover {
+            background: var(--gold-main);
+            color: #fff;
+        }
+
+        /* Tarjeta principal con fondo blanco */
+        .invitation-wrapper {
+            position: relative;
+            z-index: 5;
+            width: 100%;
+            max-width: 460px;
+            opacity: 0;
+            transform: translateY(28px) scale(0.97);
+            transition: opacity 1s ease 0.2s, transform 1s ease 0.2s;
+        }
+
+        .invitation-wrapper.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .card-paper {
+            background-color: var(--paper-bg);
+            background-image:
+                radial-gradient(rgba(180, 146, 62, 0.04) 1px, transparent 0),
+                radial-gradient(circle at 50% 45%, #ffffff 0%, #fcfbf7 100%);
+            background-size: 18px 18px, 100% 100%;
+            padding: 16px;
+            box-shadow: 0 18px 45px rgba(110, 88, 35, 0.16), 0 2px 10px rgba(0, 0, 0, 0.06);
+            position: relative;
+        }
+
+        /* Doble marco dorado igual a la imagen */
+        .outer-border {
+            border: 2.2px solid var(--gold-main);
+            padding: 5px;
+            position: relative;
+        }
+
+        .inner-border {
+            border: 1px solid var(--gold-main);
+            padding: 26px 20px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Destello dorado sutil recorriendo la tarjeta */
+        .inner-border::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -120%;
+            width: 70%;
+            height: 200%;
+            background: linear-gradient(
+                to right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(214, 185, 107, 0.18) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: rotate(25deg);
+            animation: cardShimmer 7s infinite ease-in-out;
+            pointer-events: none;
+        }
+
+        @keyframes cardShimmer {
+            0%, 60% { left: -120%; }
+            100% { left: 160%; }
+        }
+
+        /* Animación escalonada de elementos internos */
+        .reveal {
+            opacity: 0;
+            transform: translateY(14px);
+            transition: opacity 0.85s ease, transform 0.85s ease;
+        }
+
+        .invitation-wrapper.visible .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .d1 { transition-delay: 0.35s; }
+        .d2 { transition-delay: 0.55s; }
+        .d3 { transition-delay: 0.75s; }
+        .d4 { transition-delay: 0.95s; }
+        .d5 { transition-delay: 1.15s; }
+        .d6 { transition-delay: 1.35s; }
+        .d7 { transition-delay: 1.55s; }
+        .d8 { transition-delay: 1.75s; }
+
+        /* Monograma DM y laurel SVG */
+        .monogram-wrap {
+            width: 155px;
+            margin: 0 auto 8px;
+            filter: drop-shadow(1px 2px 2px rgba(95, 74, 24, 0.18));
+        }
+
+        /* Línea divisoria superior con estrellita */
+        .star-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 8px auto 12px;
+            width: 82%;
+        }
+
+        .star-divider::before,
+        .star-divider::after {
+            content: '';
+            flex: 1;
+            height: 0.8px;
+            background: linear-gradient(to right, transparent, var(--gold-main));
+        }
+
+        .star-divider::after {
+            background: linear-gradient(to left, transparent, var(--gold-main));
+        }
+
+        .star-icon {
+            color: var(--gold-main);
+            font-size: 0.7rem;
+            margin: 0 10px;
+            line-height: 1;
+        }
+
+        /* Textos fieles a la tarjeta */
+        .blessing-text {
+            font-size: 1.14rem;
+            font-style: italic;
+            font-weight: 500;
+            color: var(--ink-dark);
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+
+        .parents-grid {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 12px;
+            max-width: 340px;
+            margin: 0 auto 14px;
+            font-size: 1.03rem;
+            font-style: italic;
+            color: var(--ink-dark);
+            line-height: 1.35;
+        }
+
+        .parents-col-left {
+            text-align: right;
+        }
+
+        .parents-col-right {
+            text-align: left;
+        }
+
+        .parents-line {
+            width: 1px;
+            height: 36px;
+            background-color: var(--gold-main);
+        }
+
+        .nosotros-text {
+            font-size: 1.15rem;
+            font-style: italic;
+            font-weight: 500;
+            color: var(--ink-dark);
+            margin-bottom: 8px;
+        }
+
+        /* Nombres de los novios en caligrafía dorada con disposición escalonada */
+        .couple-block {
+            margin: 4px auto 14px;
+            padding: 0 6px;
+            position: relative;
+        }
+
+        .groom-name {
+            font-family: 'Alex Brush', cursive;
+            font-size: 2.65rem;
+            font-weight: 400;
+            color: var(--gold-main);
+            text-align: left;
+            padding-left: 4%;
+            line-height: 1.05;
+            text-shadow: 0 1px 1px rgba(142, 111, 36, 0.15);
+        }
+
+        .ampersand {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-weight: 600;
+            font-size: 2.3rem;
+            color: var(--gold-main);
+            line-height: 0.75;
+            margin: -2px 0;
+            display: block;
+            text-align: center;
+        }
+
+        .bride-name {
+            font-family: 'Alex Brush', cursive;
+            font-size: 2.65rem;
+            font-weight: 400;
+            color: var(--gold-main);
+            text-align: right;
+            padding-right: 4%;
+            line-height: 1.05;
+            text-shadow: 0 1px 1px rgba(142, 111, 36, 0.15);
+        }
+
+        .ceremony-invite {
+            font-size: 1.04rem;
+            font-style: italic;
+            color: var(--ink-dark);
+            line-height: 1.38;
+            max-width: 375px;
+            margin: 14px auto 20px;
+        }
+
+        /* Bloque de fecha y hora idéntico */
+        .date-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            margin: 10px auto 18px;
+            max-width: 340px;
+        }
+
+        .date-side {
+            flex: 1;
+            border-top: 1px solid var(--gold-main);
+            border-bottom: 1px solid var(--gold-main);
+            padding: 4px 2px;
+            font-size: 1.22rem;
+            font-style: italic;
+            color: var(--ink-dark);
+            white-space: nowrap;
+        }
+
+        .date-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1;
+        }
+
+        .day-number {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.45rem;
+            font-weight: 700;
+            color: var(--ink-dark);
+            letter-spacing: -1px;
+        }
+
+        .month-label {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 1.05rem;
+            color: var(--ink-dark);
+            margin-top: 2px;
+        }
+
+        /* Iglesia y dirección */
+        .venue-block {
+            margin-top: 14px;
+        }
+
+        .church-name {
+            font-size: 1.32rem;
+            font-style: italic;
+            font-weight: 600;
+            color: var(--ink-dark);
+            margin-bottom: 3px;
+        }
+
+        .church-address {
+            font-size: 0.94rem;
+            font-style: italic;
+            color: var(--ink-muted);
+        }
+
+        /* Sección interactiva discreta abajo de la tarjeta física */
+        .interactive-bar {
+            margin-top: 16px;
+            background: #ffffff;
+            border: 1px solid var(--gold-main);
+            padding: 16px 14px;
+            text-align: center;
+            box-shadow: 0 12px 30px rgba(110, 88, 35, 0.12);
+        }
+
+        .countdown-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2.2px;
+            color: var(--gold-dark);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .countdown-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .cd-item {
+            border: 1px solid rgba(180, 146, 62, 0.45);
+            padding: 7px 4px;
+            background: #fcfbf7;
+        }
+
+        .cd-num {
+            display: block;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--gold-dark);
+        }
+
+        .cd-lbl {
+            font-size: 0.72rem;
+            font-style: italic;
+            color: var(--ink-muted);
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .btn-card {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 11px 14px;
+            text-decoration: none;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border: 1px solid var(--gold-main);
+            transition: all 0.25s ease;
+            cursor: pointer;
+        }
+
+        .btn-gold {
+            background: var(--gold-main);
+            color: #ffffff;
+        }
+
+        .btn-gold:hover {
+            background: var(--gold-dark);
+        }
+
+        /* Botón flotante de música */
+        .music-toggle {
+            position: fixed;
+            bottom: 18px;
+            right: 18px;
+            z-index: 50;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 1.5px solid var(--gold-main);
+            color: var(--gold-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(110, 88, 35, 0.22);
+            font-size: 1.15rem;
+            transition: transform 0.2s ease;
+        }
+
+        .music-toggle:hover {
+            transform: scale(1.08);
+        }
+
+        .music-playing {
+            animation: pulseGold 2s infinite;
+        }
+
+        @keyframes pulseGold {
+            0% { box-shadow: 0 0 0 0 rgba(180, 146, 62, 0.5); }
+            70% { box-shadow: 0 0 0 10px rgba(180, 146, 62, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(180, 146, 62, 0); }
+        }
+
+        @media (max-width: 390px) {
+            .groom-name, .bride-name {
+                font-size: 2.25rem;
+            }
+            .parents-grid {
+                font-size: 0.94rem;
+                gap: 8px;
+            }
+            .date-side {
+                font-size: 1.08rem;
+            }
+            .day-number {
+                font-size: 2.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="particles-canvas"></canvas>
+
+    <!-- Sobre inicial animado -->
+    <div class="envelope-overlay" id="envelopeOverlay">
+        <div class="envelope-box">
+            <p style="font-style: italic; font-size: 1.1rem; color: var(--ink-muted);">Invitación de Boda</p>
+            <h2 style="font-family: 'Alex Brush', cursive; font-size: 2.3rem; color: var(--gold-main); font-weight: 400; margin-top: 4px;">
+                Danny &amp; Mishel
+            </h2>
+            <div class="wax-seal" onclick="openInvitation()" title="Abrir invitación">DM</div>
+            <p style="font-size: 0.92rem; font-style: italic; color: var(--ink-muted); margin-bottom: 12px;">
+                Toca el sello para abrir
+            </p>
+            <button class="open-btn" onclick="openInvitation()">Abrir Invitación</button>
+        </div>
+    </div>
+
+    <!-- Contenedor principal de la invitación -->
+    <main class="invitation-wrapper" id="invitationCard">
+        <div class="card-paper">
+            <div class="outer-border">
+                <div class="inner-border">
+
+                    <!-- Monograma DM con ramas de laurel -->
+                    <div class="monogram-wrap reveal d1">
+                        <svg viewBox="0 0 220 155" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#cca94e"/>
+                                    <stop offset="50%" stop-color="#a8832d"/>
+                                    <stop offset="100%" stop-color="#c9a54a"/>
+                                </linearGradient>
+                            </defs>
+                            <!-- Letra D -->
+                            <text x="64" y="92" font-family="'Cormorant Garamond', Georgia, serif" font-size="92" font-weight="600" fill="url(#goldGrad)">D</text>
+                            <!-- Letra M entrelazada -->
+                            <text x="88" y="96" font-family="'Cormorant Garamond', Georgia, serif" font-size="88" font-weight="600" fill="url(#goldGrad)">M</text>
+
+                            <!-- Ramas de laurel cruzadas debajo -->
+                            <g stroke="#a8832d" stroke-width="1.6" fill="none" stroke-linecap="round">
+                                <!-- Tallo izquierdo hacia arriba -->
+                                <path d="M 122 128 C 95 124, 65 112, 48 88"/>
+                                <!-- Tallo derecho hacia arriba -->
+                                <path d="M 98 128 C 125 124, 155 112, 172 88"/>
+                                <!-- Lazo central -->
+                                <path d="M 110 116 C 102 126, 102 140, 110 144 C 118 140, 118 126, 110 116 Z"/>
+                            </g>
+
+                            <!-- Hojitas del laurel izquierdo -->
+                            <g fill="#a8832d">
+                                <ellipse cx="52" cy="87" rx="6" ry="2.4" transform="rotate(-45 52 87)"/>
+                                <ellipse cx="47" cy="96" rx="6" ry="2.4" transform="rotate(-15 47 96)"/>
+                                <ellipse cx="60" cy="97" rx="6" ry="2.4" transform="rotate(-65 60 97)"/>
+                                <ellipse cx="55" cy="106" rx="6.5" ry="2.5" transform="rotate(-10 55 106)"/>
+                                <ellipse cx="70" cy="106" rx="6.5" ry="2.5" transform="rotate(-60 70 106)"/>
+                                <ellipse cx="66" cy="115" rx="6.5" ry="2.5" transform="rotate(-5 66 115)"/>
+                                <ellipse cx="82" cy="113" rx="6.5" ry="2.5" transform="rotate(-55 82 113)"/>
+                                <ellipse cx="80" cy="122" rx="6.5" ry="2.5" transform="rotate(5 80 122)"/>
+                                <ellipse cx="95" cy="119" rx="6" ry="2.4" transform="rotate(-45 95 119)"/>
+                            </g>
+
+                            <!-- Hojitas del laurel derecho -->
+                            <g fill="#a8832d">
+                                <ellipse cx="168" cy="87" rx="6" ry="2.4" transform="rotate(45 168 87)"/>
+                                <ellipse cx="173" cy="96" rx="6" ry="2.4" transform="rotate(15 173 96)"/>
+                                <ellipse cx="160" cy="97" rx="6" ry="2.4" transform="rotate(65 160 97)"/>
+                                <ellipse cx="165" cy="106" rx="6.5" ry="2.5" transform="rotate(10 165 106)"/>
+                                <ellipse cx="150" cy="106" rx="6.5" ry="2.5" transform="rotate(60 150 106)"/>
+                                <ellipse cx="154" cy="115" rx="6.5" ry="2.5" transform="rotate(5 154 115)"/>
+                                <ellipse cx="138" cy="113" rx="6.5" ry="2.5" transform="rotate(55 138 113)"/>
+                                <ellipse cx="140" cy="122" rx="6.5" ry="2.5" transform="rotate(-5 140 122)"/>
+                                <ellipse cx="125" cy="119" rx="6" ry="2.4" transform="rotate(45 125 119)"/>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <!-- Línea con estrella -->
+                    <div class="star-divider reveal d2">
+                        <span class="star-icon">&#9733;</span>
+                    </div>
+
+                    <!-- Encabezado y Padres -->
+                    <p class="blessing-text reveal d2">Con la Bendición de Dios y de nuestros Padres</p>
+
+                    <div class="parents-grid reveal d3">
+                        <div class="parents-col-left">
+                            <div>Jorge Xicay</div>
+                            <div>Ana Cuá</div>
+                        </div>
+                        <div class="parents-line"></div>
+                        <div class="parents-col-right">
+                            <div>Pedro Miculax</div>
+                            <div>Adela Umul</div>
+                        </div>
+                    </div>
+
+                    <p class="nosotros-text reveal d4">Nosotros</p>
+
+                    <!-- Nombres de los novios -->
+                    <div class="couple-block reveal d5">
+                        <div class="groom-name">Danny Xicay</div>
+                        <span class="ampersand">&amp;</span>
+                        <div class="bride-name">Mishel Miculax</div>
+                    </div>
+
+                    <!-- Texto de invitación -->
+                    <p class="ceremony-invite reveal d6">
+                        Uniremos nuestras vidas en el sagrado vínculo del matrimonio y nos complace invitarles a la ceremonia religiosa.
+                    </p>
+
+                    <!-- Fecha y Hora -->
+                    <div class="date-section reveal d7">
+                        <div class="date-side">Sabado</div>
+                        <div class="date-center">
+                            <span class="day-number">12</span>
+                            <span class="month-label">Diciembre</span>
+                        </div>
+                        <div class="date-side">2:30 PM</div>
+                    </div>
+
+                    <!-- Iglesia y Dirección -->
+                    <div class="venue-block reveal d8">
+                        <div class="church-name">Iglesia la Verdad y la Vida</div>
+                        <div class="church-address">4 Av. 6-2 Avenida la Reforma, Zona 1. Patzicia 2026</div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Barra interactiva: Cuenta regresiva y botón de calendario -->
+        <section class="interactive-bar reveal d8">
+            <div class="countdown-title">Faltan para el gran día</div>
+            <div class="countdown-grid">
+                <div class="cd-item"><span class="cd-num" id="cd-days">00</span><span class="cd-lbl">Días</span></div>
+                <div class="cd-item"><span class="cd-num" id="cd-hours">00</span><span class="cd-lbl">Horas</span></div>
+                <div class="cd-item"><span class="cd-num" id="cd-mins">00</span><span class="cd-lbl">Min</span></div>
+                <div class="cd-item"><span class="cd-num" id="cd-secs">00</span><span class="cd-lbl">Seg</span></div>
+            </div>
+
+            <div class="action-buttons">
+                <button onclick="downloadCalendar()" class="btn-card btn-gold">
+                    &#128197; Agendar fecha en calendario
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Control de música ambiental -->
+    <button class="music-toggle" id="musicBtn" onclick="toggleMusic()" title="Música ambiental">&#9835;</button>
+
+    <script>
+        // Apertura del sobre y activación de animaciones
+        function openInvitation() {
+            const overlay = document.getElementById('envelopeOverlay');
+            const card = document.getElementById('invitationCard');
+            overlay.classList.add('opened');
+            card.classList.add('visible');
+            startMusicIfPossible();
+        }
+
+        // Cuenta regresiva al 12 de diciembre de 2026 a las 2:30 PM
+        const weddingDate = new Date(2026, 11, 12, 14, 30, 0).getTime();
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const diff = weddingDate - now;
+
+            if (diff <= 0) {
+                document.getElementById('cd-days').innerText = '00';
+                document.getElementById('cd-hours').innerText = '00';
+                document.getElementById('cd-mins').innerText = '00';
+                document.getElementById('cd-secs').innerText = '00';
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('cd-days').innerText = String(days).padStart(2, '0');
+            document.getElementById('cd-hours').innerText = String(hours).padStart(2, '0');
+            document.getElementById('cd-mins').innerText = String(mins).padStart(2, '0');
+            document.getElementById('cd-secs').innerText = String(secs).padStart(2, '0');
+        }
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        // Descargar recordatorio .ics para calendario
+        function downloadCalendar() {
+            const icsContent = [
+                'BEGIN:VCALENDAR',
+                'VERSION:2.0',
+                'PRODID:-//Boda Danny y Mishel//ES',
+                'BEGIN:VEVENT',
+                'DTSTART:20261212T143000',
+                'DTEND:20261212T163000',
+                'SUMMARY:Boda de Danny Xicay & Mishel Miculax',
+                'DESCRIPTION:Ceremonia religiosa en Iglesia la Verdad y la Vida.',
+                'LOCATION:Iglesia la Verdad y la Vida, 4 Av. 6-2 Avenida la Reforma, Zona 1, Patzicia',
+                'END:VEVENT',
+                'END:VCALENDAR'
+            ].join('\r\n');
+
+            const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'Boda-Danny-y-Mishel.ics';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Melodía suave generada con Web Audio API
+        let audioCtx = null;
+        let isPlaying = false;
+        let melodyInterval = null;
+
+        const notes = [261.63, 329.63, 392.00, 493.88, 523.25, 493.88, 392.00, 329.63,
+                       220.00, 261.63, 329.63, 392.00, 440.00, 392.00, 329.63, 261.63];
+        let step = 0;
+
+        function playNote(freq) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+            gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.045, audioCtx.currentTime + 0.15);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.4);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 1.45);
+        }
+
+        function startMusicIfPossible() {
+            if (isPlaying) return;
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                isPlaying = true;
+                document.getElementById('musicBtn').classList.add('music-playing');
+                playNote(notes[step % notes.length]);
+                step++;
+                melodyInterval = setInterval(() => {
+                    if (isPlaying) {
+                        playNote(notes[step % notes.length]);
+                        step++;
+                    }
+                }, 750);
+            } catch (e) {}
+        }
+
+        function toggleMusic() {
+            const btn = document.getElementById('musicBtn');
+            if (!isPlaying) {
+                startMusicIfPossible();
+            } else {
+                isPlaying = false;
+                clearInterval(melodyInterval);
+                btn.classList.remove('music-playing');
+            }
+        }
+
+        // Partículas doradas sutiles en el fondo
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        for (let i = 0; i < 38; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                r: Math.random() * 2.1 + 0.6,
+                dx: (Math.random() - 0.5) * 0.35,
+                dy: -Math.random() * 0.45 - 0.15,
+                alpha: Math.random() * 0.55 + 0.25
+            });
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(180, 146, 62, ${p.alpha})`;
+                ctx.fill();
+
+                p.x += p.dx;
+                p.y += p.dy;
+
+                if (p.y < -10) {
+                    p.y = canvas.height + 10;
+                    p.x = Math.random() * canvas.width;
+                }
+            });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+    </script>
+</body>
+</html>
